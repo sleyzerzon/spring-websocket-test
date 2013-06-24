@@ -1,11 +1,12 @@
 package org.springframework.samples.websocket.echo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,55 +19,73 @@ import org.springframework.web.messaging.support.PubSubMessageBuilder;
 @Controller
 public class StompController {
 
-	private final MessageChannel<Message<?>> brokerChannel;
+	private final MessageChannel brokerChannel;
 
-	private final MessageChannel<Message<?>> clientChannel;
+	private final MessageChannel clientChannel;
 
 
 	@Autowired
-	public StompController(PubSubChannelRegistry<Message<?>, MessageHandler<Message<?>>> channelRegistry) {
-		this.brokerChannel = channelRegistry.getMessageBrokerChannel();
-		this.clientChannel = channelRegistry.getClientOutputChannel();
+	public StompController(PubSubChannelRegistry registry) {
+		this.brokerChannel = registry.getMessageBrokerChannel();
+		this.clientChannel = registry.getClientOutputChannel();
 	}
 
 
 	@SubscribeEvent(value="/init")
-	public Message<?> handleInit() {
+	public Message<?> init() {
 
-		Message<String> message = PubSubMessageBuilder.withPayload("fake echo").destination("/topic/echo").build();
+		Message<String> message = PubSubMessageBuilder.withPayload("Echo init").destination("/topic/echo").build();
 		this.brokerChannel.send(message);
 
-		return PubSubMessageBuilder.withPayload("init data").build();
+		return PubSubMessageBuilder.withPayload(new EchoEntity("Init data"))
+				.contentType(MediaType.APPLICATION_JSON).build();
 	}
 
+
 	@MessageMapping(value="/echo")
-	public void handleEchoMessage(String text) {
+	public void echoMessage(String text) {
 
 		if (text.equals("exception")) {
 			throw new IllegalStateException();
 		}
 
-		Message<String> message = PubSubMessageBuilder.withPayload("Echo: " + text)
-				.destination("/topic/echo").build();
+		text = "Echo message: " + text;
+		Message<String> message = PubSubMessageBuilder.withPayload(text).destination("/topic/echo").build();
 
 		this.brokerChannel.send(message);
 	}
 
-	@MessageExceptionHandler
-	public void handle(IllegalStateException ex) {
 
-		Message<String> message = PubSubMessageBuilder.withPayload("Exception: " + ex.toString())
+	@MessageExceptionHandler
+	public void handleMessageException(IllegalStateException ex) {
+
+		Message<String> message = PubSubMessageBuilder.withPayload("Exception: " + ex.getMessage())
 				.destination("/error").build();
 
 		this.clientChannel.send(message);
 	}
 
+
 	@RequestMapping(value="/echo", method=RequestMethod.POST)
 	@ResponseBody
-	public void handleEcho(String text) {
+	public void echoRequest(String text) {
 
-		Message<String> message = PubSubMessageBuilder.withPayload("Echo (HTTP POST): " + text)
-				.destination("/topic/echo").build();
+		if (text.equals("exception")) {
+			throw new IllegalStateException();
+		}
+
+		text = "Echo HTTP POST: " + text;
+		Message<String> message = PubSubMessageBuilder.withPayload(text).destination("/topic/echo").build();
+
+		this.brokerChannel.send(message);
+	}
+
+
+	@ExceptionHandler
+	public void handleException(IllegalStateException ex) {
+
+		Message<String> message = PubSubMessageBuilder.withPayload("Exception: " + ex.getMessage())
+				.destination("/error").build();
 
 		this.brokerChannel.send(message);
 	}

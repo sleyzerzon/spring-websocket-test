@@ -56,7 +56,6 @@
     <script type="text/javascript">
         var ws = null;
         var stompClient = null;
-        var destination = '/topic/echo';
 
         var transport = 'websocket';
 
@@ -78,8 +77,8 @@
                 log('stomp connected');
                 setConnected(true);
                 
-                stompClient.subscribe(destination, function(message) {
-                    log('Message [' + destination + ']: ' + message);
+                stompClient.subscribe("/topic/echo", function(message) {
+                    log('Message [/topic/echo]: ' + message);
                 });
 
                 stompClient.subscribe("/init", function(message) {
@@ -115,7 +114,7 @@
                 var message = document.getElementById('message').value;
                 log('Sent: ' + message);
                 
-                stompClient.send(destination, {receipt:"123"}, message);
+                // stompClient.send("/topic/echo", {receipt:"123"}, message);
                 stompClient.send("/echo", {}, message);
                 
             } else {

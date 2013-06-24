@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHandler;
 import org.springframework.samples.websocket.echo.EchoWebSocketHandler;
 import org.springframework.samples.websocket.snake.websockethandler.SnakeWebSocketHandler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -71,14 +69,14 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	public StompWebSocketHandler<Message<?>> stompWebSocketHandler() {
-		StompWebSocketHandler<Message<?>> handler = new StompWebSocketHandler<Message<?>>(channelRegistry());
+	public StompWebSocketHandler stompWebSocketHandler() {
+		StompWebSocketHandler handler = new StompWebSocketHandler(channelRegistry());
 		channelRegistry().getClientOutputChannel().subscribe(handler);
 		return handler;
 	}
 
 	@Bean
-	public PubSubChannelRegistry<Message<?>, MessageHandler<Message<?>>> channelRegistry() {
+	public PubSubChannelRegistry channelRegistry() {
 		return new ReactorPubSubChannelRegistry(reactor());
 	}
 
@@ -88,10 +86,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	public StompRelayPubSubMessageHandler<Message<?>> stompRelayMessageHandler() {
+	public StompRelayPubSubMessageHandler stompRelayMessageHandler() {
 
-		StompRelayPubSubMessageHandler<Message<?>> handler =
-				new StompRelayPubSubMessageHandler<Message<?>>(channelRegistry());
+		StompRelayPubSubMessageHandler handler =
+				new StompRelayPubSubMessageHandler(channelRegistry());
 
 		handler.setAllowedDestinations(new String[] {"/exchange/**", "/queue/*", "/amq/queue/*", "/topic/*" });
 		channelRegistry().getClientInputChannel().subscribe(handler);
@@ -100,10 +98,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	public AnnotationPubSubMessageHandler<Message<?>> annotationMessageHandler() {
+	public AnnotationPubSubMessageHandler annotationMessageHandler() {
 
-		AnnotationPubSubMessageHandler<Message<?>> handler =
-				new AnnotationPubSubMessageHandler<Message<?>>(channelRegistry());
+		AnnotationPubSubMessageHandler handler =
+				new AnnotationPubSubMessageHandler(channelRegistry());
 
 		channelRegistry().getClientInputChannel().subscribe(handler);
 		return handler;
