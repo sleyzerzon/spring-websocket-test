@@ -1,6 +1,7 @@
 package org.springframework.samples.websocket.echo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.messaging.PubSubChannelRegistry;
 import org.springframework.web.messaging.annotation.MessageExceptionHandler;
 import org.springframework.web.messaging.annotation.SubscribeEvent;
 import org.springframework.web.messaging.support.PubSubMessageBuilder;
@@ -25,9 +25,11 @@ public class StompController {
 
 
 	@Autowired
-	public StompController(PubSubChannelRegistry registry) {
-		this.brokerChannel = registry.getMessageBrokerChannel();
-		this.clientChannel = registry.getClientOutputChannel();
+	public StompController(@Qualifier("messageBrokerChannel") MessageChannel brokerChannel,
+			@Qualifier("clientOutputChannel") MessageChannel clientChannel) {
+
+		this.brokerChannel = brokerChannel;
+		this.clientChannel = clientChannel;
 	}
 
 

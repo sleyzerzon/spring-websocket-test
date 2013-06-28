@@ -15,7 +15,6 @@ import org.springframework.web.messaging.service.method.AnnotationPubSubMessageH
 import org.springframework.web.messaging.stomp.support.StompRelayPubSubMessageHandler;
 import org.springframework.web.messaging.stomp.support.StompWebSocketHandler;
 import org.springframework.web.messaging.support.ReactorMessageChannel;
-import org.springframework.web.messaging.support.WebMessagingTemplate;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -94,11 +93,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	@Bean
 	public Reactor reactor() {
 		return Reactors.reactor().get();
-	}
-
-	@Bean
-	public WebMessagingTemplate messagingTemplate() {
-		return new WebMessagingTemplate();
 	}
 
 	@Bean
