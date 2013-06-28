@@ -23,6 +23,7 @@ import org.springframework.samples.websocket.echo.DefaultEchoService;
 import org.springframework.samples.websocket.echo.EchoService;
 
 @Configuration
+//@ImportResource(value="classpath:org/springframework/samples/websocket/config/activemq-config.xml")
 public class RootConfig {
 
 	@Bean
