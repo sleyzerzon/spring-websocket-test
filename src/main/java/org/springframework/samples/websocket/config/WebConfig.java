@@ -11,8 +11,8 @@ import org.springframework.messaging.SubscribableChannel;
 import org.springframework.samples.websocket.echo.EchoWebSocketHandler;
 import org.springframework.samples.websocket.snake.websockethandler.SnakeWebSocketHandler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.web.messaging.service.method.AnnotationPubSubMessageHandler;
-import org.springframework.web.messaging.stomp.support.StompRelayPubSubMessageHandler;
+import org.springframework.web.messaging.service.method.AnnotationWebMessageHandler;
+import org.springframework.web.messaging.stomp.support.StompRelayWebMessageHandler;
 import org.springframework.web.messaging.stomp.support.StompWebSocketHandler;
 import org.springframework.web.messaging.support.ReactorMessageChannel;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
@@ -96,8 +96,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	public StompRelayPubSubMessageHandler stompRelayMessageHandler() {
-		StompRelayPubSubMessageHandler handler = new StompRelayPubSubMessageHandler(clientOutputChannel());
+	public StompRelayWebMessageHandler stompRelayMessageHandler() {
+		StompRelayWebMessageHandler handler = new StompRelayWebMessageHandler(clientOutputChannel());
 		handler.setAllowedDestinations(new String[] {"/exchange/**", "/queue/*", "/amq/queue/*", "/topic/*" });
 		clientInputChannel().subscribe(handler);
 		messageBrokerChannel().subscribe(handler);
@@ -105,9 +105,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
-	public AnnotationPubSubMessageHandler annotationMessageHandler() {
-		AnnotationPubSubMessageHandler handler = new AnnotationPubSubMessageHandler(
-				clientOutputChannel(), messageBrokerChannel());
+	public AnnotationWebMessageHandler annotationMessageHandler() {
+		AnnotationWebMessageHandler handler = new AnnotationWebMessageHandler(clientOutputChannel(), messageBrokerChannel());
 		clientInputChannel().subscribe(handler);
 		return handler;
 	}

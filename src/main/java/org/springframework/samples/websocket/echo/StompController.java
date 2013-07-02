@@ -2,10 +2,10 @@ package org.springframework.samples.websocket.echo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.MediaType;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.annotation.MessageMapping;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.messaging.annotation.MessageExceptionHandler;
 import org.springframework.web.messaging.annotation.SubscribeEvent;
-import org.springframework.web.messaging.support.PubSubMessageBuilder;
+import org.springframework.web.messaging.support.WebMessageHeaderAccesssor;
 
 
 @Controller
@@ -34,13 +34,15 @@ public class StompController {
 
 
 	@SubscribeEvent(value="/init")
-	public Message<?> init() {
+	public String init() {
 
-		Message<String> message = PubSubMessageBuilder.withPayload("Echo init").destination("/topic/echo").build();
+		WebMessageHeaderAccesssor headers = WebMessageHeaderAccesssor.create();
+		headers.setDestination("/topic/echo");
+
+		Message<String> message = MessageBuilder.withPayload("Echo init").copyHeaders(headers.toMap()).build();
 		this.brokerChannel.send(message);
 
-		return PubSubMessageBuilder.withPayload(new EchoEntity("Init data"))
-				.contentType(MediaType.APPLICATION_JSON).build();
+		return "Init data";
 	}
 
 
@@ -52,7 +54,10 @@ public class StompController {
 		}
 
 		text = "Echo message: " + text;
-		Message<String> message = PubSubMessageBuilder.withPayload(text).destination("/topic/echo").build();
+
+		WebMessageHeaderAccesssor headers = WebMessageHeaderAccesssor.create();
+		headers.setDestination("/topic/echo");
+		Message<String> message = MessageBuilder.withPayload(text).copyHeaders(headers.toMap()).build();
 
 		this.brokerChannel.send(message);
 	}
@@ -61,8 +66,11 @@ public class StompController {
 	@MessageExceptionHandler
 	public void handleMessageException(IllegalStateException ex) {
 
-		Message<String> message = PubSubMessageBuilder.withPayload("Exception: " + ex.getMessage())
-				.destination("/error").build();
+		String text = "Exception: " + ex.getMessage();
+
+		WebMessageHeaderAccesssor headers = WebMessageHeaderAccesssor.create();
+		headers.setDestination("/error");
+		Message<String> message = MessageBuilder.withPayload(text).copyHeaders(headers.toMap()).build();
 
 		this.clientChannel.send(message);
 	}
@@ -77,7 +85,9 @@ public class StompController {
 		}
 
 		text = "Echo HTTP POST: " + text;
-		Message<String> message = PubSubMessageBuilder.withPayload(text).destination("/topic/echo").build();
+		WebMessageHeaderAccesssor headers = WebMessageHeaderAccesssor.create();
+		headers.setDestination("/topic/echo");
+		Message<String> message = MessageBuilder.withPayload(text).copyHeaders(headers.toMap()).build();
 
 		this.brokerChannel.send(message);
 	}
@@ -86,8 +96,11 @@ public class StompController {
 	@ExceptionHandler
 	public void handleException(IllegalStateException ex) {
 
-		Message<String> message = PubSubMessageBuilder.withPayload("Exception: " + ex.getMessage())
-				.destination("/error").build();
+		String text = "Exception: " + ex.getMessage();
+
+		WebMessageHeaderAccesssor headers = WebMessageHeaderAccesssor.create();
+		headers.setDestination("/error");
+		Message<String> message = MessageBuilder.withPayload(text).copyHeaders(headers.toMap()).build();
 
 		this.brokerChannel.send(message);
 	}
