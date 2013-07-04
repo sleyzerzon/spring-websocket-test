@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.SubscribableChannel;
+import org.springframework.messaging.channel.PublishSubscribeChannel;
 import org.springframework.samples.websocket.echo.EchoWebSocketHandler;
 import org.springframework.samples.websocket.snake.websockethandler.SnakeWebSocketHandler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.web.messaging.service.SimpleBrokerWebMessageHandler;
 import org.springframework.web.messaging.service.method.AnnotationWebMessageHandler;
-import org.springframework.web.messaging.stomp.support.StompRelayWebMessageHandler;
 import org.springframework.web.messaging.stomp.support.StompWebSocketHandler;
-import org.springframework.web.messaging.support.ReactorMessageChannel;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -77,17 +77,20 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
 	@Bean
 	public SubscribableChannel clientInputChannel() {
-		return new ReactorMessageChannel(reactor());
+		return new PublishSubscribeChannel();
+//		return new ReactorMessageChannel(reactor());
 	}
 
 	@Bean
 	public SubscribableChannel clientOutputChannel() {
-		return new ReactorMessageChannel(reactor());
+		return new PublishSubscribeChannel();
+//		return new ReactorMessageChannel(reactor());
 	}
 
 	@Bean
 	public SubscribableChannel messageBrokerChannel() {
-		return new ReactorMessageChannel(reactor());
+		return new PublishSubscribeChannel();
+//		return new ReactorMessageChannel(reactor());
 	}
 
 	@Bean
@@ -95,10 +98,18 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 		return Reactors.reactor().get();
 	}
 
+//	@Bean
+//	public StompRelayWebMessageHandler stompRelayMessageHandler() {
+//		StompRelayWebMessageHandler handler = new StompRelayWebMessageHandler(clientOutputChannel());
+//		handler.setAllowedDestinations(new String[] {"/exchange/**", "/queue/*", "/amq/queue/*", "/topic/*" });
+//		clientInputChannel().subscribe(handler);
+//		messageBrokerChannel().subscribe(handler);
+//		return handler;
+//	}
+
 	@Bean
-	public StompRelayWebMessageHandler stompRelayMessageHandler() {
-		StompRelayWebMessageHandler handler = new StompRelayWebMessageHandler(clientOutputChannel());
-		handler.setAllowedDestinations(new String[] {"/exchange/**", "/queue/*", "/amq/queue/*", "/topic/*" });
+	public SimpleBrokerWebMessageHandler stompRelayMessageHandler() {
+		SimpleBrokerWebMessageHandler handler = new SimpleBrokerWebMessageHandler(clientOutputChannel());
 		clientInputChannel().subscribe(handler);
 		messageBrokerChannel().subscribe(handler);
 		return handler;
