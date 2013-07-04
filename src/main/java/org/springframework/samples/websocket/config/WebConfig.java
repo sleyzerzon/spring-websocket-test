@@ -15,6 +15,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.messaging.service.SimpleBrokerWebMessageHandler;
 import org.springframework.web.messaging.service.method.AnnotationWebMessageHandler;
 import org.springframework.web.messaging.stomp.support.StompWebSocketHandler;
+import org.springframework.web.messaging.support.WebMessagingTemplate;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -25,9 +26,6 @@ import org.springframework.web.socket.sockjs.SockJsService;
 import org.springframework.web.socket.sockjs.support.DefaultSockJsService;
 import org.springframework.web.socket.sockjs.support.SockJsHttpRequestHandler;
 import org.springframework.web.socket.support.PerConnectionWebSocketHandler;
-
-import reactor.core.Reactor;
-import reactor.core.Reactors;
 
 
 @Configuration
@@ -76,6 +74,11 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 	}
 
 	@Bean
+	public WebMessagingTemplate webMessagingTemplate() {
+		return new WebMessagingTemplate(messageBrokerChannel());
+	}
+
+	@Bean
 	public SubscribableChannel clientInputChannel() {
 		return new PublishSubscribeChannel();
 //		return new ReactorMessageChannel(reactor());
@@ -93,10 +96,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 //		return new ReactorMessageChannel(reactor());
 	}
 
-	@Bean
-	public Reactor reactor() {
-		return Reactors.reactor().get();
-	}
+//	@Bean
+//	public Reactor reactor() {
+//		return Reactors.reactor().get();
+//	}
 
 //	@Bean
 //	public StompRelayWebMessageHandler stompRelayMessageHandler() {
