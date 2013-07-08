@@ -12,7 +12,7 @@ import org.springframework.messaging.channel.PublishSubscribeChannel;
 import org.springframework.samples.websocket.echo.EchoWebSocketHandler;
 import org.springframework.samples.websocket.snake.websockethandler.SnakeWebSocketHandler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.web.messaging.service.SimpleBrokerWebMessageHandler;
+import org.springframework.web.messaging.service.broker.SimpleBrokerWebMessageHandler;
 import org.springframework.web.messaging.service.method.AnnotationWebMessageHandler;
 import org.springframework.web.messaging.stomp.support.StompWebSocketHandler;
 import org.springframework.web.messaging.support.WebMessagingTemplate;
@@ -111,7 +111,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 //	}
 
 	@Bean
-	public SimpleBrokerWebMessageHandler stompRelayMessageHandler() {
+	public SimpleBrokerWebMessageHandler simpleBrokerMessageHandler() {
 		SimpleBrokerWebMessageHandler handler = new SimpleBrokerWebMessageHandler(clientOutputChannel());
 		clientInputChannel().subscribe(handler);
 		messageBrokerChannel().subscribe(handler);
