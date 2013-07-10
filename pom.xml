@@ -40,12 +40,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>reactor</groupId>
+			<groupId>org.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>
 			<version>1.0.0.BUILD-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>reactor</groupId>
+			<groupId>org.projectreactor</groupId>
 			<artifactId>reactor-tcp</artifactId>
 			<version>1.0.0.BUILD-SNAPSHOT</version>
 		</dependency>
